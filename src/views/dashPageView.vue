@@ -1,0 +1,49 @@
+<template>
+  <div class="sidebar">
+    <h4>Admin Panel</h4>
+
+    <router-link to="/dashboard" active-class="active-menu"> Dashboard </router-link>
+
+    <router-link
+      v-if="role === 'Manager' || role === 'Admin'"
+      to="/staff"
+      active-class="active-menu"
+    >
+      Staff
+    </router-link>
+    <div class="dropdown" style="background-color: transparent !important">
+      <button
+        class="btn btn-secondary sss dropdown-toggle"
+        style="background-color: transparent !important; border: none"
+        type="button"
+        data-bs-toggle="dropdown"
+      >
+        Students
+      </button>
+
+      <ul class="dropdown-menu">
+        <li class="dropdown-item">
+          <router-link to="/student" active-class="active-menu">All students </router-link>
+        </li>
+
+        <li><a class="dropdown-item" href="#">Add Student</a></li>
+      </ul>
+    </div>
+
+    <a href="#">Settings</a>
+    <button @click="logout" class="btn btn-danger">Logout</button>
+  </div>
+</template>
+<script setup>
+const role = localStorage.getItem('role')
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const logout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('role')
+
+  router.push('/login')
+}
+</script>
