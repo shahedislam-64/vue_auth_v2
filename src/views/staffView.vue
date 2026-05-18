@@ -139,7 +139,7 @@ import dashPageView from './dashPageView.vue'
 
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-const api = 'http://127.0.0.1:8000/api/staff'
+import api from '@/services/api'
 const staff = ref([])
 const currentRole = localStorage.getItem('role')
 const token = localStorage.getItem('token')
