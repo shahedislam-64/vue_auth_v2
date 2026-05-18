@@ -143,19 +143,18 @@ import api from '@/services/api'
 const staff = ref([])
 const currentRole = localStorage.getItem('role')
 const token = localStorage.getItem('token')
+
 const getStaff = async () => {
   try {
-    const res = await axios.get(api, {
+    const res = await api.get('/staff', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
 
-    console.log(res.data)
-
     staff.value = res.data.staff
   } catch (error) {
-    console.log('ERROR:', error.response?.data || error)
+    console.log(error.response?.data)
   }
 }
 
