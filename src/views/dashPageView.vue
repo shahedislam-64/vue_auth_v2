@@ -22,11 +22,19 @@
       </button>
 
       <ul class="dropdown-menu">
-        <li class="dropdown-item">
+        <li class="dropdown-item text-white">
           <router-link to="/student" active-class="active-menu">All students </router-link>
         </li>
 
-        <li><a class="dropdown-item" href="#">Add Student</a></li>
+        <li>
+          <button
+            class="dropdown-item text-white"
+            data-bs-toggle="modal"
+            data-bs-target="#addModal"
+          >
+            Add Student
+          </button>
+        </li>
       </ul>
     </div>
 

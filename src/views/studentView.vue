@@ -27,13 +27,13 @@
           </thead>
 
           <tbody>
-            <tr>
-              <td>1</td>
+            <tr v-for="(item, index) in students" :key="item.id">
+              <td>{{ index + 1 }}</td>
               <td>
                 <img src="https://i.pravatar.cc/100?img=1" />
               </td>
-              <td>John Doe</td>
-              <td>john@example.com</td>
+              <td>{{ item.full_name }}</td>
+              <td>{{ item.email }}</td>
               <td>
                 <span class="badge bg-success">Active</span>
               </td>
@@ -51,65 +51,68 @@
                 <button class="btn btn-sm btn-danger">Delete</button>
               </td>
             </tr>
-
-            <tr>
-              <td>2</td>
-              <td>
-                <img src="https://i.pravatar.cc/100?img=2" />
-              </td>
-              <td>Sarah Smith</td>
-              <td>sarah@example.com</td>
-              <td>
-                <span class="badge bg-secondary">Inactive</span>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-info">View</button>
-                <button class="btn btn-sm btn-warning">Edit</button>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-
-  <div class="modal fade" id="addModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>Add Student</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <div class="mb-3">
-            <label>Name</label>
-            <input type="text" class="form-control" />
+  <form @submit.prevent="student_create">
+    <div class="modal fade" id="addModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5>Add Student</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
-          <div class="mb-3">
-            <label>Email</label>
-            <input type="email" class="form-control" />
+          <div class="modal-body">
+            <div class="mb-3">
+              <label>Full Name</label>
+              <input v-model="form.full_name" type="text" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Student Id</label>
+              <input v-model="form.student_id" type="text" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Phone</label>
+              <input v-model="form.phone" type="text" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+              <label>Email</label>
+              <input v-model="form.email" type="email" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Course</label>
+              <input v-model="form.course_name" type="text" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Batch</label>
+              <input v-model="form.batch_name" type="text" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Admission Date</label>
+              <input v-model="form.admission_date" type="date" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+              <label>Status</label>
+              <select v-model="form.status" class="form-select">
+                <option>Active</option>
+                <option>Inactive</option>
+              </select>
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label>Status</label>
-            <select class="form-select">
-              <option>Active</option>
-              <option>Inactive</option>
-            </select>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button class="btn btn-primary">Save</button>
           </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-primary">Save</button>
         </div>
       </div>
     </div>
-  </div>
-
+  </form>
   <div class="modal fade" id="editModal">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -141,4 +144,64 @@
 
 <script setup>
 import dashPageView from './dashPageView.vue'
+
+import { ref, onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '@/services/api'
+
+const router = useRouter()
+
+const form = reactive({
+  full_name: '',
+  student_id: '',
+  phone: '',
+  email: '',
+  course_name: '',
+  batch_name: '',
+  admission_date: '',
+  status: '',
+})
+
+const student_create = async () => {
+  try {
+    const res = await api.post('/student_create', form)
+
+    alert(res.data.message || 'student create successfully')
+
+    router.push('/student')
+  } catch (error) {
+    // 🔥 SAFE ERROR HANDLING
+    if (error.response) {
+      console.log('ERROR DATA:', error.response.data)
+
+      const msg =
+        error.response.data.message ||
+        Object.values(error.response.data.errors || {})
+          .flat()
+          .join('\n')
+
+      alert(msg)
+    } else {
+      console.log('NETWORK ERROR:', error)
+      alert('Network / Server error')
+    }
+  }
+}
+
+const students = ref([])
+
+const getstudent = async () => {
+  try {
+    const res = await api.get('/students')
+
+    students.value = res.data.students
+
+    console.log(students.value)
+  } catch (error) {
+    console.log(error.response?.data || error)
+  }
+}
+onMounted(() => {
+  getstudent()
+})
 </script>

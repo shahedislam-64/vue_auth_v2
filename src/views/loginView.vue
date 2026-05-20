@@ -35,6 +35,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
+
 const router = useRouter()
 
 const email = ref('')
@@ -47,10 +48,19 @@ const login = async () => {
       password: password.value,
     })
 
-    localStorage.setItem('token', res.data.token)
-    localStorage.setItem('role', res.data.staff.role)
+    const token = res.data.token
+    const role = res.data.staff.role
 
-    router.push('/dashboard')
+    // save token
+    localStorage.setItem('token', token)
+    localStorage.setItem('role', role)
+
+    // redirect
+    if (role === 'Accountant') {
+      router.push('/account/dashboard')
+    } else {
+      router.push('/dashboard')
+    }
   } catch (error) {
     console.log(error.response?.data)
   }

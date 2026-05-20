@@ -49,6 +49,28 @@ const router = createRouter({
       component: () => import('../views/staffView.vue'),
       meta: { requiresAuth: true },
     },
+
+    {
+      path: '/account/dashboard',
+      name: 'AccountDashboard',
+      component: () => import('@/views/account/AccountDeshboardView.vue'),
+    },
+    {
+      path: '/payment/history',
+      name: 'PaymentHistory',
+      component: () => import('@/views/account/PaymentHistoryView.vue'),
+    },
+    {
+      path: '/student/payment',
+      name: 'StudentPayment',
+      component: () => import('@/views/account/StudentPaymentView.vue'),
+    },
+    {
+      path: '/dash-page',
+      name: 'dashPageView',
+      component: () => import('../views/dashPageView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
