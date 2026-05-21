@@ -63,41 +63,41 @@
         <h4 class="text-primary">৳ {{ payment.paid_amount }}</h4>
       </div>
 
-      <!-- PRINT -->
+      <!-- ACTION -->
       <div class="text-center mt-4 no-print">
-        <button class="btn btn-primary" @click="printPage">Print / Save PDF</button> -
+        <button class="btn btn-primary" @click="printPage">Print / Save PDF</button>
 
-        <button class="btn btn-success" @click="sendWhatsApp">Send WhatsApp</button>
+        <button class="btn btn-success ms-2" @click="sendWhatsApp">Send WhatsApp</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 
 const route = useRoute()
 const payment = ref(null)
 
-/* LOAD SINGLE PAYMENT */
-const getPayment = async () => {
-  try {
-    const id = route.params.id
+/* LOAD PAYMENT */
+const getPayment = async (id) => {
+  console.log('REQUEST ID:', id)
 
-    const res = await axios.get(`http://127.0.0.1:8000/api/payments/${id}`)
+  const res = await axios.get(`http://127.0.0.1:8000/api/payments/${id}`)
 
-    payment.value = res.data.payment
-  } catch (err) {
-    console.log('API ERROR:', err)
-  }
+  console.log('API RESPONSE:', res.data)
+
+  payment.value = res.data.payment
 }
 
+/* PRINT */
 const printPage = () => {
   window.print()
 }
 
+/* WHATSAPP */
 const sendWhatsApp = async () => {
   try {
     if (!payment.value) return
@@ -107,7 +107,6 @@ const sendWhatsApp = async () => {
     const res = await axios.get(`http://127.0.0.1:8000/api/payments/${id}/receipt`)
 
     const pdfUrl = res.data.url
-
     const p = payment.value
 
     const phone = p.student?.phone?.replace(/^0/, '88')
@@ -129,14 +128,26 @@ ${pdfUrl}`
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
   } catch (err) {
-    console.log('WHATSAPP ERROR:', err.response || err)
+    console.log('WHATSAPP ERROR:', err)
     alert('WhatsApp send failed')
   }
 }
 
+/* INITIAL LOAD */
 onMounted(() => {
-  getPayment()
+  getPayment(route.params.id)
 })
+
+/* 🔥 IMPORTANT FIX: route change detect */
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      payment.value = null
+      getPayment(newId)
+    }
+  },
+)
 </script>
 
 <style>

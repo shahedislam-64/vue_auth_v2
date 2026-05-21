@@ -8,12 +8,6 @@
         <h4 class="mb-0">Student Management</h4>
       </div>
 
-      <!-- Search -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">Students List</h5>
-        <input class="form-control w-25" placeholder="Search student..." />
-      </div>
-
       <!-- Table -->
       <div class="table-responsive">
         <table class="table table-bordered align-middle bg-white">
@@ -31,46 +25,39 @@
 
           <tbody>
             <tr v-for="(s, index) in students" :key="s.id">
-              <td><td>{{ index + 1 }}</td></td>
+              <td>{{ index + 1 }}</td>
               <td>{{ s.student_id }}</td>
               <td>{{ s.full_name }}</td>
               <td>{{ s.email }}</td>
+
               <td>
                 <span v-if="s.due_months?.length">
                   {{ s.due_months.join(', ') }}
                 </span>
-
-                <span v-else class="badge bg-success"> Paid </span>
+                <span v-else class="badge bg-success">Paid</span>
               </td>
+
               <td>
                 <span class="badge bg-success">{{ s.status }}</span>
               </td>
 
               <td>
-                <router-link
-                  to="/paymentPDF"
-                  class="btn btn-sm btn-info me-2"
-                  active-class="active-menu"
-                  >View</router-link
-                >
                 <button
-                  class="btn btn-sm btn-warning me-2"
+                  class="btn btn-sm btn-info"
                   data-bs-toggle="modal"
-                  data-bs-target="#editModal"
+                  data-bs-target="#paymentModal"
                   @click="openPaymentModal(s)"
                 >
                   Payment
                 </button>
-
-                <button class="btn btn-sm btn-danger">Delete</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Modal -->
-      <div class="modal fade" id="editModal" tabindex="-1">
+      <!-- MODAL -->
+      <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -79,7 +66,7 @@
             </div>
 
             <div class="modal-body">
-              <!-- Student Display -->
+              <!-- Student -->
               <div class="mb-3">
                 <label class="form-label">Student</label>
                 <div class="form-control bg-light">
@@ -87,37 +74,45 @@
                 </div>
               </div>
 
+              <!-- Amount -->
               <div class="mb-3">
                 <label>Amount</label>
                 <input v-model="form.amount" type="number" class="form-control" />
               </div>
 
+              <!-- Paid -->
               <div class="mb-3">
                 <label>Paid Amount</label>
                 <input v-model="form.paid_amount" type="number" class="form-control" />
               </div>
-              <div>
+
+              <!-- Month -->
+              <div class="mb-3">
+                <label>Month</label>
                 <select v-model="form.month" class="form-select">
-                  <option value="January">January</option>
-                  <option value="February">February</option>
-                  <option value="March">March</option>
-                  <option value="April">April</option>
-                  <option value="May">May</option>
-                  <option value="June">June</option>
-                  <option value="July">July</option>
-                  <option value="August">August</option>
-                  <option value="September">September</option>
-                  <option value="October">October</option>
-                  <option value="November">November</option>
-                  <option value="December">December</option>
+                  <option disabled value="">Select Month</option>
+                  <option>January</option>
+                  <option>February</option>
+                  <option>March</option>
+                  <option>April</option>
+                  <option>May</option>
+                  <option>June</option>
+                  <option>July</option>
+                  <option>August</option>
+                  <option>September</option>
+                  <option>October</option>
+                  <option>November</option>
+                  <option>December</option>
                 </select>
               </div>
 
+              <!-- Method -->
               <div class="mb-3">
                 <label>Payment Method</label>
                 <input v-model="form.payment_method" class="form-control" />
               </div>
 
+              <!-- Date -->
               <div class="mb-3">
                 <label>Payment Date</label>
                 <input v-model="form.payment_date" type="date" class="form-control" />
@@ -126,7 +121,8 @@
 
             <div class="modal-footer">
               <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button class="btn btn-warning" @click="savePayment">Save</button>
+
+              <button class="btn btn-success" @click="savePayment">Save Payment</button>
             </div>
           </div>
         </div>
@@ -139,6 +135,9 @@
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import AccountMenuView from './AccountMenuView.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const students = ref([])
 
@@ -161,27 +160,32 @@ const openPaymentModal = (student) => {
   selectedStudent.student_id = student.student_id
   selectedStudent.full_name = student.full_name
 
-  Object.assign(form, {
-    student_id: student.id,
-    amount: '',
-    paid_amount: '',
-    payment_method: '',
-    payment_date: '',
-    month: '',
-  })
+  form.student_id = student.id
+
+  form.amount = ''
+  form.paid_amount = ''
+  form.payment_method = ''
+  form.payment_date = ''
+  form.month = ''
 }
 
-/* SAVE PAYMENT */
+/* SAVE PAYMENT (MAIN FIX) */
 const savePayment = async () => {
   try {
     const res = await axios.post('http://127.0.0.1:8000/api/payments', form)
 
-    alert('Payment Saved')
+    const paymentId = res.data.payment.id
 
-    getStudents()
+    // close modal manually
+    const modal = document.getElementById('paymentModal')
+    const modalInstance = bootstrap.Modal.getInstance(modal)
+    modalInstance.hide()
+
+    // redirect to correct payment page
+    router.push(`/singlePayment/${paymentId}`)
   } catch (err) {
-    console.log(err.response?.data)
-    alert('Error')
+    console.log(err.response?.data || err)
+    alert('Payment save failed')
   }
 }
 
@@ -189,8 +193,7 @@ const savePayment = async () => {
 const getStudents = async () => {
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/students')
-
-    students.value = res.data.students || [] // 🔥 FIX
+    students.value = res.data.students || []
   } catch (err) {
     console.log(err)
   }
@@ -200,6 +203,7 @@ onMounted(() => {
   getStudents()
 })
 </script>
+
 <style>
 .bgc {
   background-color: #e9e9e9;

@@ -8,7 +8,7 @@
       </button>
     </div>
 
-    <div class="card-box">
+    <div class="card-box sps">
       <div class="d-flex justify-content-between mb-3">
         <input type="text" class="form-control w-25" placeholder="Search student..." />
       </div>
@@ -205,3 +205,11 @@ onMounted(() => {
   getstudent()
 })
 </script>
+<style>
+.sps {
+  margin-left: 0px;
+}
+.sps table tr {
+  background-color: red !important;
+}
+</style>
