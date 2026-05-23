@@ -6,7 +6,13 @@
       <!-- Header -->
       <div class="topbar">
         <h3>Student Management</h3>
+        <select v-model="selectedClass" class="form-control search-box">
+          <option value="">---Select a Class---</option>
 
+          <option v-for="cls in uniqueClasses" :key="cls" :value="cls">
+            {{ cls }}
+          </option>
+        </select>
         <input
           v-model="search"
           type="text"
@@ -24,6 +30,7 @@
                 <th>#</th>
                 <th>Student ID</th>
                 <th>Name</th>
+                <th>Class</th>
                 <th>Email</th>
                 <th>Due Months</th>
                 <th>Status</th>
@@ -39,6 +46,7 @@
 
                 <td>{{ s.student_id }}</td>
                 <td>{{ s.full_name }}</td>
+                <td>{{ s.batch_name }}</td>
                 <td>{{ s.email }}</td>
 
                 <td>
@@ -207,6 +215,7 @@ const router = useRouter()
 
 const students = ref([])
 const search = ref('')
+const selectedClass = ref('')
 
 /* Pagination */
 const currentPage = ref(1)
@@ -233,14 +242,16 @@ const filteredStudents = computed(() => {
   return students.value.filter((s) => {
     const keyword = search.value.toLowerCase()
 
-    return (
+    const matchSearch =
       s.student_id?.toLowerCase().includes(keyword) ||
       s.full_name?.toLowerCase().includes(keyword) ||
       s.email?.toLowerCase().includes(keyword)
-    )
+
+    const matchClass = !selectedClass.value || s.batch_name === selectedClass.value
+
+    return matchSearch && matchClass
   })
 })
-
 /* Total Pages */
 const totalPages = computed(() => {
   return Math.ceil(filteredStudents.value.length / perPage)
@@ -310,6 +321,12 @@ const getStudents = async () => {
     console.log(err)
   }
 }
+
+const uniqueClasses = computed(() => {
+  const classes = students.value.map((s) => s.batch_name).filter(Boolean)
+
+  return [...new Set(classes)]
+})
 
 onMounted(() => {
   getStudents()

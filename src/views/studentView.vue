@@ -11,10 +11,26 @@
     </div>
 
     <div class="card-box sps">
-      <div class="d-flex justify-content-between mb-3">
-        <input type="text" class="form-control w-25" placeholder="Search student..." />
+      <!-- FILTER SECTION -->
+      <div class="d-flex justify-content-between mb-3 gap-2">
+        <!-- Class Filter -->
+        <select v-model="selectedClass" class="form-control w-25">
+          <option value="">---Select Class---</option>
+          <option v-for="cls in uniqueClasses" :key="cls" :value="cls">
+            {{ cls }}
+          </option>
+        </select>
+
+        <!-- Search -->
+        <input
+          v-model="search"
+          type="text"
+          class="form-control w-25"
+          placeholder="Search student..."
+        />
       </div>
 
+      <!-- TABLE -->
       <div class="table-responsive">
         <table class="table table-bordered align-middle">
           <thead class="table-dark">
@@ -22,6 +38,7 @@
               <th>#</th>
               <th>Photo</th>
               <th>Name</th>
+              <th>Class</th>
               <th>Email</th>
               <th>Status</th>
               <th width="220">Action</th>
@@ -29,30 +46,65 @@
           </thead>
 
           <tbody>
-            <tr v-for="(item, index) in students" :key="item.id">
-              <td>{{ index + 1 }}</td>
+            <tr v-for="(item, index) in paginatedStudents" :key="item.id">
+              <td>{{ (currentPage - 1) * perPage + index + 1 }}</td>
+
               <td>
-                <img src="https://i.pravatar.cc/100?img=1" />
+                <img src="https://i.pravatar.cc/100?img=1" width="40" />
               </td>
+
               <td>{{ item.full_name }}</td>
+              <td>{{ item.batch_name }}</td>
               <td>{{ item.email }}</td>
+
               <td>
                 <span class="badge bg-success">Active</span>
               </td>
+
               <td>
                 <button class="btn btn-sm btn-info">View</button>
-                <button
-                  class="btn btn-sm btn-warning"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editModal"
-                >
-                  Edit
-                </button>
+                <button class="btn btn-sm btn-warning">Edit</button>
                 <button class="btn btn-sm btn-danger">Delete</button>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- EMPTY -->
+      <div v-if="filteredStudents.length === 0" class="text-center py-3 text-muted">
+        No students found 😢
+      </div>
+
+      <!-- PAGINATION -->
+      <div
+        v-if="filteredStudents.length > 0"
+        class="d-flex justify-content-between align-items-center mt-3"
+      >
+        <div>
+          Showing
+          <b>{{ (currentPage - 1) * perPage + 1 }}</b>
+          to
+          <b>{{ Math.min(currentPage * perPage, filteredStudents.length) }}</b>
+          of
+          <b>{{ filteredStudents.length }}</b>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-secondary" @click="prevPage" :disabled="currentPage === 1">
+            Prev
+          </button>
+
+          <button class="btn btn-sm btn-light">{{ currentPage }} / {{ totalPages }}</button>
+
+          <button
+            class="btn btn-sm btn-primary"
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -97,7 +149,7 @@
               <label>Class</label>
               <select v-model="form.batch_name" class="form-control">
                 <option value="">---Select---</option>
-                <option v-for="n in 12" :key="n" :value="n">{{ n }}</option>
+                <option v-for="n in 12" :key="n" :value="'class-' + n">class-{{ n }}</option>
               </select>
             </div>
 
@@ -124,40 +176,24 @@
       </div>
     </div>
   </form>
-
-  <!-- EDIT MODAL -->
-  <div class="modal fade" id="editModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>Edit Student</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <input class="form-control mb-2" value="John Doe" />
-          <input class="form-control" value="john@example.com" />
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-warning">Update</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script setup>
 import dashPageView from './dashPageView.vue'
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import api from '@/services/api'
-
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 
+const search = ref('')
+const selectedClass = ref('')
 const students = ref([])
 
+/* PAGINATION */
+const currentPage = ref(1)
+const perPage = ref(10)
+
+/* FORM */
 const form = reactive({
   full_name: '',
   student_id: '',
@@ -169,16 +205,22 @@ const form = reactive({
   status: '',
 })
 
+/* RESET FORM */
 const resetForm = () => {
   Object.keys(form).forEach((key) => (form[key] = ''))
 }
 
-const closeModal = () => {
-  const modalEl = document.getElementById('addModal')
-  const modal = bootstrap.Modal.getOrCreateInstance(modalEl)
-  modal.hide()
+/* GET STUDENTS */
+const getstudent = async () => {
+  try {
+    const res = await api.get('/students')
+    students.value = res.data.students || []
+  } catch (error) {
+    console.log(error)
+  }
 }
 
+/* CREATE STUDENT */
 const student_create = async () => {
   if (!form.full_name || !form.email) {
     alert('Field must not be empty')
@@ -186,14 +228,12 @@ const student_create = async () => {
   }
 
   try {
-    const res = await api.post('/student_create', form)
+    await api.post('/student_create', form)
 
     alert('Created successfully')
 
-    // ✅ এখানে modal close কোড দিবা
     const modalEl = document.getElementById('addModal')
     const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)
-
     modal.hide()
 
     resetForm()
@@ -203,14 +243,51 @@ const student_create = async () => {
   }
 }
 
-const getstudent = async () => {
-  try {
-    const res = await api.get('/students')
-    students.value = res.data.students
-  } catch (error) {
-    console.log(error)
-  }
+/* UNIQUE CLASS */
+const uniqueClasses = computed(() => {
+  const classes = students.value.map((s) => s.batch_name).filter(Boolean)
+  return [...new Set(classes)]
+})
+
+/* FILTER */
+const filteredStudents = computed(() => {
+  return students.value.filter((s) => {
+    const keyword = search.value.toLowerCase()
+
+    const matchSearch =
+      s.full_name?.toLowerCase().includes(keyword) ||
+      s.email?.toLowerCase().includes(keyword) ||
+      s.student_id?.toLowerCase().includes(keyword)
+
+    const matchClass =
+      !selectedClass.value || s.batch_name?.toLowerCase() === selectedClass.value.toLowerCase()
+
+    return matchSearch && matchClass
+  })
+})
+
+/* PAGINATION */
+const totalPages = computed(() => {
+  return Math.ceil(filteredStudents.value.length / perPage.value)
+})
+
+const paginatedStudents = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value
+  return filteredStudents.value.slice(start, start + perPage.value)
+})
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
 }
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+
+/* RESET PAGE ON FILTER CHANGE */
+watch([search, selectedClass], () => {
+  currentPage.value = 1
+})
 
 onMounted(() => {
   getstudent()
