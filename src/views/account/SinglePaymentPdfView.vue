@@ -77,21 +77,21 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import api from '@/services/api'
+import axios from 'axios'
 
 const route = useRoute()
 const payment = ref(null)
 
-const API = 'https://laravel-auth-backend-65.onrender.com'
-
+import api from '@/services/api'
 /* LOAD PAYMENT */
 const getPayment = async (id) => {
-  try {
-    const res = await api.get(`/payments/${id}`)
-    payment.value = res.data.payment
-  } catch (err) {
-    console.log('LOAD ERROR:', err)
-  }
+  console.log('REQUEST ID:', id)
+
+  const res = await api.get(`/payments/${id}`)
+
+  console.log('API RESPONSE:', res.data)
+
+  payment.value = res.data.payment
 }
 
 /* PRINT */
@@ -106,10 +106,9 @@ const sendWhatsApp = async () => {
 
     const id = payment.value.id
 
-    // GET RECEIPT
-    const res = await api.get(`/payments/${id}/receipt`)
-    const pdfUrl = res.data.url
+    const res = await axios.get(`http://127.0.0.1:8000/api/payments/${id}/receipt`)
 
+    const pdfUrl = res.data.url
     const p = payment.value
 
     const phone = p.student?.phone?.replace(/^0/, '88')
@@ -119,8 +118,7 @@ const sendWhatsApp = async () => {
       return
     }
 
-    const message = encodeURIComponent(
-      `Your payment receipt is ready:
+    const message = `Your payment receipt is ready:
 Receipt ID: ${p.id}
 Name: ${p.student.full_name}
 Month: ${p.month}
@@ -128,10 +126,9 @@ Paid: ৳${p.paid_amount}
 Status: ${p.status}
 
 Download Receipt:
-${pdfUrl}`,
-    )
+${pdfUrl}`
 
-    window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
   } catch (err) {
     console.log('WHATSAPP ERROR:', err)
     alert('WhatsApp send failed')
@@ -143,7 +140,7 @@ onMounted(() => {
   getPayment(route.params.id)
 })
 
-/* ROUTE CHANGE FIX */
+/* 🔥 IMPORTANT FIX: route change detect */
 watch(
   () => route.params.id,
   (newId) => {
