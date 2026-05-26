@@ -77,7 +77,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
 import api from '@/api'
 const route = useRoute()
 const payment = ref(null)
