@@ -77,6 +77,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import axios from 'axios'
 import api from '@/api'
 const route = useRoute()
 const payment = ref(null)
@@ -86,7 +87,7 @@ import api from '@/services/api'
 const getPayment = async (id) => {
   console.log('REQUEST ID:', id)
 
-  const res = await api.get(`/payments/${id}/receipt`)
+  const res = await api.get(`/payments/${id}`)
 
   console.log('API RESPONSE:', res.data)
 
