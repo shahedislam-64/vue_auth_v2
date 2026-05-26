@@ -63,6 +63,12 @@ const router = createRouter({
     },
 
     {
+      path: '/singlePayment/:id',
+      name: 'singlePayment',
+      component: () => import('@/views/account/SinglePaymentPdfView.vue'),
+    },
+
+    {
       path: '/student/payment',
       name: 'StudentPayment',
       component: () => import('@/views/account/StudentPaymentView.vue'),
