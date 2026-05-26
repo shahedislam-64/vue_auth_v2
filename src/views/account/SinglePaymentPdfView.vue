@@ -78,7 +78,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
-
+import api from '@/api'
 const route = useRoute()
 const payment = ref(null)
 
@@ -106,7 +106,7 @@ const sendWhatsApp = async () => {
 
     const id = payment.value.id
 
-    const res = await axios.get(`https://your-backend-url.onrender.com/api/payments/${id}/receipt`)
+    const res = await api.get(`/payments/${id}/receipt`)
     const pdfUrl = res.data.url
     const p = payment.value
 
