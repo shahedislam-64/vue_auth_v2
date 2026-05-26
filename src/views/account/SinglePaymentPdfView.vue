@@ -86,7 +86,7 @@ import api from '@/services/api'
 const getPayment = async (id) => {
   console.log('REQUEST ID:', id)
 
-  const res = await api.get(`/payments/${id}`)
+  const res = await api.get(`/payments/${id}/receipt`)
 
   console.log('API RESPONSE:', res.data)
 
