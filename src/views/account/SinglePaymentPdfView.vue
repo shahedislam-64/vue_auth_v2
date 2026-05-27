@@ -120,7 +120,7 @@ const sendWhatsApp = async () => {
     }
 
     // remove leading 0 and add 88
-    phone = '880' + phone.replace(/^0+/, '')
+    phone = '88' + phone.replace(/^0+/, '')
 
     // WhatsApp message
     const message = `Hello ${p.student.full_name},
