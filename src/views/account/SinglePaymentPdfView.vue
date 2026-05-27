@@ -105,35 +105,44 @@ const sendWhatsApp = async () => {
 
     const id = payment.value.id
 
+    // get Cloudinary PDF URL
     const res = await api.get(`/payments/${id}/receipt`)
-
     const pdfUrl = res.data.url
+
     const p = payment.value
 
-    const phone = p.student?.phone?.replace(/^0/, '88')
+    // clean phone format
+    let phone = p.student?.phone
 
     if (!phone) {
       alert('Phone missing')
       return
     }
 
-    const message = `Your payment receipt is ready:
-Receipt ID: ${p.id}
-Name: ${p.student.full_name}
-Month: ${p.month}
-Paid: ৳${p.paid_amount}
-Status: ${p.status}
+    // remove leading 0 and add 88
+    phone = '88' + phone.replace(/^0+/, '')
 
-Download Receipt:
+    // WhatsApp message
+    const message = `Hello ${p.student.full_name},
+
+Your payment receipt is ready.
+
+📌 Receipt ID: ${p.id}
+📅 Month: ${p.month}
+💰 Paid: ৳${p.paid_amount}
+📊 Status: ${p.status}
+
+👉 Download Receipt:
 ${pdfUrl}`
 
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
+    // open WhatsApp
+    const waLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+    window.open(waLink, '_blank')
   } catch (err) {
     console.log('WHATSAPP ERROR:', err)
     alert('WhatsApp send failed')
   }
 }
-
 /* INITIAL LOAD */
 onMounted(() => {
   getPayment(route.params.id)
