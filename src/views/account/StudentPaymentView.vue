@@ -208,17 +208,20 @@ const openPaymentModal = (student) => {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .filters {
   display: flex;
   gap: 10px;
-  width: 500px;
+  flex: 1;
+  min-width: 0;
 }
 
 .filters select,
 .filters input {
   flex: 1;
+  min-width: 0;
 }
 
 .table-responsive {
