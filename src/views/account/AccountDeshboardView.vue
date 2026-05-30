@@ -31,10 +31,19 @@ import AccountMenuView from './AccountMenuView.vue'
 </script>
 <style>
 .flex-grow-1 {
-  margin-left: 240px !important;
+  margin-left: 250px;
+  width: calc(100% - 250px);
 }
-.ph {
-  background-color: transparent !important;
-  border: none;
+
+/* MOBILE FULL WIDTH FIX */
+@media (max-width: 767px) {
+  .flex-grow-1 {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .bgc {
+    flex-direction: column;
+  }
 }
 </style>

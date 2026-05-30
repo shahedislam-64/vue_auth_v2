@@ -334,67 +334,27 @@ onMounted(() => {
 </script>
 
 <style>
-.bgc {
-  background: #f4f6f9;
-  min-height: 100vh;
-}
-
 .content {
   padding: 24px;
+  margin-left: 250px;
 }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* MOBILE FULL WIDTH */
+@media (max-width: 767px) {
+  .content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px;
+  }
 
-.search-box {
-  width: 300px;
-  border-radius: 12px;
-}
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
-.card-box {
-  background: #fff;
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-}
-
-.table thead th {
-  background: #0d6efd;
-  color: #fff;
-}
-
-.table tbody tr:hover {
-  background: #f8fbff;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pagination-btn {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
-.active-btn {
-  background: #0d6efd;
-  color: white;
-}
-
-.page-badge {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.modal-custom {
-  border-radius: 18px;
+  .search-box {
+    width: 100% !important;
+  }
 }
 </style>

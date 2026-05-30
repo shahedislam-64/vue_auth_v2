@@ -12,9 +12,13 @@
 
     <div class="card-box sps">
       <!-- FILTER SECTION -->
-      <div class="d-flex justify-content-between mb-3 gap-2">
+      <div
+          class="d-flex flex-column flex-md-row
+          justify-content-between
+          mb-3 gap-2"
+        >
         <!-- Class Filter -->
-        <select v-model="selectedClass" class="form-control w-25">
+        <select v-model="selectedClass" class="form-control filter-input">
           <option value="">---Select Class---</option>
           <option v-for="cls in uniqueClasses" :key="cls" :value="cls">
             {{ cls }}
@@ -25,7 +29,7 @@
         <input
           v-model="search"
           type="text"
-          class="form-control w-25"
+          class="form-control filter-input"
           placeholder="Search student..."
         />
       </div>
@@ -47,21 +51,21 @@
 
           <tbody>
             <tr v-for="(item, index) in paginatedStudents" :key="item.id">
-              <td>{{ (currentPage - 1) * perPage + index + 1 }}</td>
+              <td class="action-buttons">{{ (currentPage - 1) * perPage + index + 1 }}</td>
 
-              <td>
+              <td class="action-buttons">
                 <img src="https://i.pravatar.cc/100?img=1" width="40" />
               </td>
 
-              <td>{{ item.full_name }}</td>
-              <td>{{ item.batch_name }}</td>
-              <td>{{ item.email }}</td>
+              <td class="action-buttons">{{ item.full_name }}</td>
+              <td class="action-buttons">{{ item.batch_name }}</td>
+              <td class="action-buttons">{{ item.email }}</td>
 
-              <td>
+              <td class="action-buttons">
                 <span class="badge bg-success">Active</span>
               </td>
 
-              <td>
+              <td class="action-buttons">
                 <button class="btn btn-sm btn-info">View</button>
                 <button class="btn btn-sm btn-warning">Edit</button>
                 <button class="btn btn-sm btn-danger">Delete</button>
@@ -294,8 +298,54 @@ onMounted(() => {
 })
 </script>
 
-<style>
-.sps table tr {
-  background-color: red !important;
+<style scoped>
+.content {
+  margin-left: 250px;
+  padding: 20px;
+}
+
+.filter-input {
+  width: 25%;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.action-buttons .btn {
+  margin: 2px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: start !important;
+    gap: 10px;
+  }
+
+  .filter-input {
+    width: 100%;
+  }
+
+  table {
+    min-width: 800px;
+  }
+
+  .action-buttons {
+    white-space: nowrap;
+  }
+
+  .modal-dialog {
+    margin: 10px;
+  }
+
+  .btn-sm {
+    margin-bottom: 5px;
+  }
 }
 </style>

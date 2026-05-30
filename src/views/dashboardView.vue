@@ -1,5 +1,6 @@
 <template>
-  <div class="col-md-10 next-div">
+  <dashPageView />
+  <div class="col-12 col-md-10 next-div">
     <div class="topbar">
       <h4 class="mb-0">Dashboard</h4>
       <img src="https://i.pravatar.cc/100" width="45" style="border-radius: 50%" />
@@ -121,8 +122,6 @@
       </div>
     </div>
   </div>
-
-  <dashPageView />
 </template>
 
 <script setup>
@@ -158,8 +157,51 @@ const toggleMenu = () => {
   isOpen.value = !isOpen.value
 }
 </script>
-<style>
+
+<style scoped>
 .card-box {
   color: #333;
+}
+
+.next-div {
+  margin-left: 250px;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .next-div {
+    margin-left: 0;
+    padding: 15px;
+    margin-top: 10px;
+  }
+
+  .topbar {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .card-box {
+    text-align: center;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 700px;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
 }
 </style>
